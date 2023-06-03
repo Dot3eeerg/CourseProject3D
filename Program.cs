@@ -2,3 +2,4 @@
 
 Grid grid = new Grid("GridParameters");
 grid.BuildGrid();
+grid.AccountBoundaryConditions();

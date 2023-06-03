@@ -114,13 +114,6 @@ public class Grid
                 if (_boundaries[2] == 1) DirichletBoundaries.Add((i + 1) * nodesInRow + j);
             }
         }
-        
-        //for (int j = 0; j < _xSteps * 2 + 1; j++)
-        //{
-        //    Nodes[(_ySteps + 2) * nodesInRow + j] = new(Nodes[j].X, _yEnd, z);
-        //    if (_boundaries[2] == 1) DirichletBoundaries.Add((_ySteps + 2) * nodesInRow + j);
-        //    else NewmanBoundaries.Add((_ySteps + 2) * nodesInRow + j);
-        //}
 
         for (int i = 1; i < _zSteps * 2; i+=2)
         {
@@ -140,15 +133,6 @@ public class Grid
             }
         }
 
-        //for (int j = 0; j < _ySteps + 1; j++)
-        //{
-        //    for (int k = 0; k < _xSteps + 1; k++)
-        //    {
-        //        Nodes[_zSteps * nodesInSlice + j * nodesInRow + k] = new(Nodes[k].X, Nodes[j * nodesInRow].Y, _zEnd);
-        //        DirichletBoundaries.Add(_zSteps * nodesInSlice + j * nodesInRow + k);
-        //    }
-        //}
-
         int index = 0;
 
         for (int k = 0; k < _zSteps * 2; k+=2)
@@ -167,7 +151,7 @@ public class Grid
                     Elements[index][7] = j + 1 + nodesInRow * (i + 2) + nodesInSlice * k;
                     Elements[index][8] = j + 2 + nodesInRow * (i + 2) + nodesInSlice * k;
                     
-                    Elements[index][9] = j + nodesInRow * i + nodesInSlice + (k + 1);
+                    Elements[index][9] = j + nodesInRow * i + nodesInSlice * (k + 1);
                     Elements[index][10] = j + 1 + nodesInRow * i + nodesInSlice * (k + 1);
                     Elements[index][11] = j + 2 + nodesInRow * i + nodesInSlice * (k + 1);
                     Elements[index][12] = j + nodesInRow * (i + 1) + nodesInSlice * (k + 1);
@@ -193,11 +177,6 @@ public class Grid
 
     public void AccountBoundaryConditions()
     {
-        HashSet<int> kek = new();
-        List<(HashSet<int>, ElementSide)> anime = new();
-        int nodesInRow = _xSteps * 2 + 1;
-        int nodesInSlice = nodesInRow * (_ySteps * 2 + 1);
-
         for (int ielem = 0; ielem < Elements.Length; ielem++)
         {
             if (ielem < _xSteps * _ySteps)
@@ -206,7 +185,7 @@ public class Grid
                 else if (_boundaries[2] == 2) NewmanBoundary(ElementSide.Bottom, ielem);
             }
 
-            if (ielem > _xSteps * _ySteps * (_zSteps - 1))
+            if (ielem > _xSteps * _ySteps * _zSteps - _xSteps * _ySteps || _zSteps == 1)
             {
                 if (_boundaries[3] == 1) DirichletBoundary(ElementSide.Upper, ielem);
                 else if (_boundaries[3] == 2) NewmanBoundary(ElementSide.Upper, ielem);
@@ -318,20 +297,81 @@ public class Grid
 
     private void NewmanBoundary(ElementSide elementSide, int ielem)
     {
-        NewmanBoundaries.Add(new ());
+        NewmanBoundaries.Add((new(), elementSide));
 
         switch (elementSide)
         {
             case ElementSide.Bottom:
                 NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][1]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][2]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][3]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][4]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][5]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][6]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][7]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][8]);
+                break;
+            
+            case ElementSide.Upper:
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][18]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][19]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][20]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][21]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][22]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][23]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][24]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][25]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][26]);
+                break;
+            
+            case ElementSide.Left:
                 NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][3]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][6]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][9]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][12]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][15]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][18]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][21]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][24]);
+                break;
+            
+            case ElementSide.Right:
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][2]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][5]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][8]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][11]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][14]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][17]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][20]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][23]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][26]);
+                break;
+            
+            case ElementSide.Front:
                 NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][1]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][2]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][9]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][10]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][11]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][18]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][19]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][20]);
+                break;
+            
+            case ElementSide.Rear:
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][6]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][7]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][8]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][15]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][16]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][17]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][24]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][25]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][26]); 
+                break;
         }
     }
 }
