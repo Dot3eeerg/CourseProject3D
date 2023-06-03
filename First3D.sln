@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "First3D", "First3D.csproj", "{D379B36B-EA17-4EFE-983F-081DDBC1A9D9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D379B36B-EA17-4EFE-983F-081DDBC1A9D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D379B36B-EA17-4EFE-983F-081DDBC1A9D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D379B36B-EA17-4EFE-983F-081DDBC1A9D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D379B36B-EA17-4EFE-983F-081DDBC1A9D9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
