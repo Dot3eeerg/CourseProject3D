@@ -17,7 +17,7 @@ public class Grid
     private readonly int[] _boundaries;
     public Point3D[] Nodes { get; private set; }
     public HashSet<int> DirichletBoundaries { get; private set; } 
-    public HashSet<int> NewmanBoundaries { get; private set; } 
+    public List<(HashSet<int>, ElementSide)> NewmanBoundaries { get; private set; } 
     public int[][] Elements { get; private set; }
     public double Lambda { get; set; }
     public double Sigma { get; set; }
@@ -93,21 +93,9 @@ public class Grid
             Nodes[j + 1] = new(x, y, z);
             x += xStep / 2;
             xStep *= _xRaz;
-            if (_boundaries[2] == 1)
-            {
-                DirichletBoundaries.Add(j);
-                DirichletBoundaries.Add(j + 1);
-            }
-            else
-            {
-                NewmanBoundaries.Add(j);
-                NewmanBoundaries.Add(j + 1);
-            }
         }
 
         Nodes[_xSteps * 2] = new(_xEnd, y, z);
-        if (_boundaries[2] == 1) DirichletBoundaries.Add(_xSteps * 2);
-        else NewmanBoundaries.Add(_xSteps * 2);
 
         for (int i = 1; i < _ySteps * 2; i+=2)
         {
@@ -116,7 +104,6 @@ public class Grid
             {
                 Nodes[i * nodesInRow + j] = new(Nodes[j].X, y, z);
                 if (_boundaries[2] == 1) DirichletBoundaries.Add(i * nodesInRow + j);
-                else NewmanBoundaries.Add(i * nodesInRow + j);
             }
 
             y += yStep / 2;
@@ -125,7 +112,6 @@ public class Grid
             {
                 Nodes[(i + 1) * nodesInRow + j] = new(Nodes[j].X, y, z);
                 if (_boundaries[2] == 1) DirichletBoundaries.Add((i + 1) * nodesInRow + j);
-                else NewmanBoundaries.Add((i + 1) * nodesInRow + j);
             }
         }
         
@@ -136,49 +122,216 @@ public class Grid
         //    else NewmanBoundaries.Add((_ySteps + 2) * nodesInRow + j);
         //}
 
-        for (int i = 1; i < _zSteps; i++)
+        for (int i = 1; i < _zSteps * 2; i+=2)
         {
-            z += zStep;
-            zStep *= _zRaz;
-            for (int j = 0; j < _ySteps + 1; j++)
+            z += zStep / 2;
+            for (int j = 0; j < _ySteps * 2 + 1; j++)
             {
-                for (int k = 0; k < _zSteps + 1; k++)
-                {
+                for (int k = 0; k < _xSteps * 2 + 1; k++)
                     Nodes[i * nodesInSlice + j * nodesInRow + k] = new(Nodes[k].X, Nodes[j * nodesInRow].Y, z);
-                    if (Math.Abs(Nodes[k].X - _xStart) < 1e-12 || Math.Abs(Nodes[k].X - _xEnd) < 1e-12 || Math.Abs(Nodes[j * nodesInRow].Y - _yStart) < 1e-12 ||
-                        Math.Abs(Nodes[j * nodesInRow].Y - _yEnd) < 1e-12)
-                        DirichletBoundaries.Add(i * nodesInSlice + j * nodesInRow + k);
-                }
+            }
+            
+            z += zStep / 2;
+            zStep *= _zRaz;
+            for (int j = 0; j < _ySteps * 2 + 1; j++)
+            {
+                for (int k = 0; k < _xSteps * 2 + 1; k++)
+                    Nodes[(i + 1) * nodesInSlice + j * nodesInRow + k] = new(Nodes[k].X, Nodes[j * nodesInRow].Y, z);
             }
         }
 
-        for (int j = 0; j < _ySteps + 1; j++)
-        {
-            for (int k = 0; k < _xSteps + 1; k++)
-            {
-                Nodes[_zSteps * nodesInSlice + j * nodesInRow + k] = new(Nodes[k].X, Nodes[j * nodesInRow].Y, _zEnd);
-                DirichletBoundaries.Add(_zSteps * nodesInSlice + j * nodesInRow + k);
-            }
-        }
+        //for (int j = 0; j < _ySteps + 1; j++)
+        //{
+        //    for (int k = 0; k < _xSteps + 1; k++)
+        //    {
+        //        Nodes[_zSteps * nodesInSlice + j * nodesInRow + k] = new(Nodes[k].X, Nodes[j * nodesInRow].Y, _zEnd);
+        //        DirichletBoundaries.Add(_zSteps * nodesInSlice + j * nodesInRow + k);
+        //    }
+        //}
 
         int index = 0;
 
-        for (int k = 0; k < _zSteps; k++)
+        for (int k = 0; k < _zSteps * 2; k+=2)
         {
-            for (int i = 0; i < _ySteps; i++)
+            for (int i = 0; i < _ySteps * 2; i+=2)
             {
-                for (int j = 0; j < _xSteps; j++)
+                for (int j = 0; j < _xSteps * 2; j+=2)
                 {
                     Elements[index][0] = j + nodesInRow * i + nodesInSlice * k;
-                    Elements[index][1] = (j + 1) + nodesInRow * i + nodesInSlice * k;
-                    Elements[index][2] = j + nodesInRow * (i + 1) + nodesInSlice * k;
-                    Elements[index][3] = (j + 1) + nodesInRow * (i + 1) + nodesInSlice * k;
-                    Elements[index][4] = j + nodesInRow * i + nodesInSlice * (k + 1);
-                    Elements[index][5] = (j + 1) + nodesInRow * i + nodesInSlice * (k + 1);
-                    Elements[index][6] = j + nodesInRow * (i + 1) + nodesInSlice * (k + 1);
-                    Elements[index++][7] = (j + 1) + nodesInRow * (i + 1) + nodesInSlice * (k + 1);
+                    Elements[index][1] = j + 1 + nodesInRow * i + nodesInSlice * k;
+                    Elements[index][2] = j + 2 + nodesInRow * i + nodesInSlice * k;
+                    Elements[index][3] = j + nodesInRow * (i + 1) + nodesInSlice * k;
+                    Elements[index][4] = j + 1 + nodesInRow * (i + 1) + nodesInSlice * k;
+                    Elements[index][5] = j + 2 + nodesInRow * (i + 1) + nodesInSlice * k;
+                    Elements[index][6] = j + nodesInRow * (i + 2) - nodesInSlice * k;
+                    Elements[index][7] = j + 1 + nodesInRow * (i + 2) + nodesInSlice * k;
+                    Elements[index][8] = j + 2 + nodesInRow * (i + 2) + nodesInSlice * k;
+                    
+                    Elements[index][9] = j + nodesInRow * i + nodesInSlice + (k + 1);
+                    Elements[index][10] = j + 1 + nodesInRow * i + nodesInSlice * (k + 1);
+                    Elements[index][11] = j + 2 + nodesInRow * i + nodesInSlice * (k + 1);
+                    Elements[index][12] = j + nodesInRow * (i + 1) + nodesInSlice * (k + 1);
+                    Elements[index][13] = j + 1 + nodesInRow * (i + 1) + nodesInSlice * (k + 1);
+                    Elements[index][14] = j + 2 + nodesInRow * (i + 1) + nodesInSlice * (k + 1);
+                    Elements[index][15] = j + nodesInRow * (i + 2) + nodesInSlice * (k + 1);
+                    Elements[index][16] = j + 1 + nodesInRow * (i + 2) + nodesInSlice * (k + 1);
+                    Elements[index][17] = j + 2 + nodesInRow * (i + 2) + nodesInSlice * (k + 1);
+                    
+                    Elements[index][18] = j + nodesInRow * i + nodesInSlice * (k + 2);
+                    Elements[index][19] = j + 1 + nodesInRow * i + nodesInSlice * (k + 2);
+                    Elements[index][20] = j + 2 + nodesInRow * i + nodesInSlice * (k + 2);
+                    Elements[index][21] = j + nodesInRow * (i + 1) + nodesInSlice * (k + 2);
+                    Elements[index][22] = j + 1 + nodesInRow * (i + 1) + nodesInSlice * (k + 2);
+                    Elements[index][23] = j + 2 + nodesInRow * (i + 1) + nodesInSlice * (k + 2);
+                    Elements[index][24] = j + nodesInRow * (i + 2) + nodesInSlice * (k + 2);
+                    Elements[index][25] = j + 1 + nodesInRow * (i + 2) + nodesInSlice * (k + 2);
+                    Elements[index++][26] = j + 2 + nodesInRow * (i + 2) + nodesInSlice * (k + 2);
                 }
             }
+        }
+    }
+
+    public void AccountBoundaryConditions()
+    {
+        HashSet<int> kek = new();
+        List<(HashSet<int>, ElementSide)> anime = new();
+        int nodesInRow = _xSteps * 2 + 1;
+        int nodesInSlice = nodesInRow * (_ySteps * 2 + 1);
+
+        for (int ielem = 0; ielem < Elements.Length; ielem++)
+        {
+            if (ielem < _xSteps * _ySteps)
+            {
+                if (_boundaries[2] == 1) DirichletBoundary(ElementSide.Bottom, ielem);
+                else if (_boundaries[2] == 2) NewmanBoundary(ElementSide.Bottom, ielem);
+            }
+
+            if (ielem > _xSteps * _ySteps * (_zSteps - 1))
+            {
+                if (_boundaries[3] == 1) DirichletBoundary(ElementSide.Upper, ielem);
+                else if (_boundaries[3] == 2) NewmanBoundary(ElementSide.Upper, ielem);
+            }
+
+            if (ielem % _xSteps == 0)
+            {
+                if (_boundaries[0] == 1) DirichletBoundary(ElementSide.Left, ielem);
+                else if (_boundaries[0] == 2) NewmanBoundary(ElementSide.Left, ielem);
+            }
+
+            if ((ielem + 1) % _xSteps == 0)
+            {
+                if (_boundaries[1] == 1) DirichletBoundary(ElementSide.Right, ielem);
+                else if (_boundaries[1] == 2) NewmanBoundary(ElementSide.Right, ielem);
+            }
+
+            if (ielem % _xSteps * _ySteps < _xSteps)
+            {
+                if (_boundaries[5] == 1) DirichletBoundary(ElementSide.Front, ielem);
+                else if (_boundaries[5] == 2) NewmanBoundary(ElementSide.Front, ielem);
+            }
+
+            if (ielem % _xSteps * _ySteps >= _xSteps * _ySteps - _xSteps)
+            {
+                if (_boundaries[4] == 1) DirichletBoundary(ElementSide.Rear, ielem);
+                else if (_boundaries[4] == 2) NewmanBoundary(ElementSide.Rear, ielem);
+            }
+        }
+    }
+
+    private void DirichletBoundary(ElementSide elementSide, int ielem)
+    {
+        switch (elementSide)
+        {
+            case ElementSide.Bottom:
+                DirichletBoundaries.Add(Elements[ielem][0]);
+                DirichletBoundaries.Add(Elements[ielem][1]);
+                DirichletBoundaries.Add(Elements[ielem][2]);
+                DirichletBoundaries.Add(Elements[ielem][3]);
+                DirichletBoundaries.Add(Elements[ielem][4]);
+                DirichletBoundaries.Add(Elements[ielem][5]);
+                DirichletBoundaries.Add(Elements[ielem][6]);
+                DirichletBoundaries.Add(Elements[ielem][7]);
+                DirichletBoundaries.Add(Elements[ielem][8]);
+                break;
+            
+            case ElementSide.Upper:
+                DirichletBoundaries.Add(Elements[ielem][18]);
+                DirichletBoundaries.Add(Elements[ielem][19]);
+                DirichletBoundaries.Add(Elements[ielem][20]);
+                DirichletBoundaries.Add(Elements[ielem][21]);
+                DirichletBoundaries.Add(Elements[ielem][22]);
+                DirichletBoundaries.Add(Elements[ielem][23]);
+                DirichletBoundaries.Add(Elements[ielem][24]);
+                DirichletBoundaries.Add(Elements[ielem][25]);
+                DirichletBoundaries.Add(Elements[ielem][26]);
+                break;
+            
+            case ElementSide.Left:
+                DirichletBoundaries.Add(Elements[ielem][0]);
+                DirichletBoundaries.Add(Elements[ielem][3]);
+                DirichletBoundaries.Add(Elements[ielem][6]);
+                DirichletBoundaries.Add(Elements[ielem][9]);
+                DirichletBoundaries.Add(Elements[ielem][12]);
+                DirichletBoundaries.Add(Elements[ielem][15]);
+                DirichletBoundaries.Add(Elements[ielem][18]);
+                DirichletBoundaries.Add(Elements[ielem][21]);
+                DirichletBoundaries.Add(Elements[ielem][24]);
+                break;
+                
+            case ElementSide.Right:
+                DirichletBoundaries.Add(Elements[ielem][2]);
+                DirichletBoundaries.Add(Elements[ielem][5]);
+                DirichletBoundaries.Add(Elements[ielem][8]);
+                DirichletBoundaries.Add(Elements[ielem][11]);
+                DirichletBoundaries.Add(Elements[ielem][14]);
+                DirichletBoundaries.Add(Elements[ielem][17]);
+                DirichletBoundaries.Add(Elements[ielem][20]);
+                DirichletBoundaries.Add(Elements[ielem][23]);
+                DirichletBoundaries.Add(Elements[ielem][26]);
+                break;
+            
+            case ElementSide.Front:
+                DirichletBoundaries.Add(Elements[ielem][0]);
+                DirichletBoundaries.Add(Elements[ielem][1]);
+                DirichletBoundaries.Add(Elements[ielem][2]);
+                DirichletBoundaries.Add(Elements[ielem][9]);
+                DirichletBoundaries.Add(Elements[ielem][10]);
+                DirichletBoundaries.Add(Elements[ielem][11]);
+                DirichletBoundaries.Add(Elements[ielem][18]);
+                DirichletBoundaries.Add(Elements[ielem][19]);
+                DirichletBoundaries.Add(Elements[ielem][20]);
+                break;
+            
+            case ElementSide.Rear:
+                DirichletBoundaries.Add(Elements[ielem][6]);
+                DirichletBoundaries.Add(Elements[ielem][7]);
+                DirichletBoundaries.Add(Elements[ielem][8]);
+                DirichletBoundaries.Add(Elements[ielem][15]);
+                DirichletBoundaries.Add(Elements[ielem][16]);
+                DirichletBoundaries.Add(Elements[ielem][17]);
+                DirichletBoundaries.Add(Elements[ielem][24]);
+                DirichletBoundaries.Add(Elements[ielem][25]);
+                DirichletBoundaries.Add(Elements[ielem][26]);
+                break;
+        }
+    }
+
+    private void NewmanBoundary(ElementSide elementSide, int ielem)
+    {
+        NewmanBoundaries.Add(new ());
+
+        switch (elementSide)
+        {
+            case ElementSide.Bottom:
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
+                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
         }
     }
 }
