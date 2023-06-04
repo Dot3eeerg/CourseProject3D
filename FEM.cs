@@ -41,6 +41,7 @@ public class FEM
         for (int itime = 3; itime < _timeGrid.TGrid.Length; itime++)
         {
             AssemblySLAE(itime);
+            AccountDirichletBoundaries(itime);
         }
     }
 
@@ -238,5 +239,26 @@ public class FEM
         foreach (var childlist in list)
             foreach (var value in childlist)
                 _globalMatrix.Jg[k++] = value;
+    }
+
+    private void AccountDirichletBoundaries(int itime)
+    {
+        foreach (var node in _grid.DirichletBoundaries)
+        {
+
+            _globalMatrix.Di[node] = 1;
+            _globalVector[node] = _test.U(_grid.Nodes[node], _timeGrid[itime]);
+
+            for (int i = _globalMatrix.Ig[node]; i < _globalMatrix.Ig[node + 1]; i++)
+                _globalMatrix.Ggl[i] = 0;
+
+            for (int col = node + 1; col < _globalMatrix.Size; col++)
+                for (int j = _globalMatrix.Ig[col]; j < _globalMatrix.Ig[col + 1]; j++)
+                    if (_globalMatrix.Jg[j] == node)
+                    {
+                        _globalMatrix.Ggu[j] = 0;
+                        break;
+                    }
+        }
     }
 }
