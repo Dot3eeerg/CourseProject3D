@@ -10,7 +10,8 @@ public class FEM
     private Matrix _massMatrix;
     private Grid _grid;
     private TimeGrid _timeGrid;
-    private Vector[] _layers = default;
+    private Vector[] _layers = default!;
+    private Test _test = default!;
 
     public FEM(Grid grid, TimeGrid timeGrid)
     {
@@ -19,6 +20,11 @@ public class FEM
         _stiffnessMatrix = new(27);
         _massMatrix = new(27);
         _localVector = new(27);
+    }
+
+    public void SetTest(Test test)
+    {
+        _test = test;
     }
 
     public void Compute()
