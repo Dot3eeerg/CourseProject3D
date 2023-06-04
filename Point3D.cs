@@ -1,4 +1,4 @@
-namespace CourseProjetc3D;
+namespace First3D;
 
 public class Point3D
 {
