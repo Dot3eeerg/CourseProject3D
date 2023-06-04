@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace First3D;
 
 public class FEM
@@ -12,14 +14,18 @@ public class FEM
     private TimeGrid _timeGrid;
     private Vector[] _layers = default!;
     private Test _test = default!;
+    private IBasis3D _basis = default!;
+    private Integration _integration = default!;
 
     public FEM(Grid grid, TimeGrid timeGrid)
     {
         _grid = grid;
         _timeGrid = timeGrid;
-        _stiffnessMatrix = new(27);
-        _massMatrix = new(27);
-        _localVector = new(27);
+        _basis = new TriQuadraticBasis();
+        _integration = new Integration(new List<QuadratureNode>());
+        _stiffnessMatrix = new(_basis.Size);
+        _massMatrix = new(_basis.Size);
+        _localVector = new(_basis.Size);
     }
 
     public void SetTest(Test test)
@@ -65,6 +71,54 @@ public class FEM
         double hx = _grid.Nodes[_grid.Elements[ielem][26]].X - _grid.Nodes[_grid.Elements[ielem][0]].X;
         double hy = _grid.Nodes[_grid.Elements[ielem][26]].Y - _grid.Nodes[_grid.Elements[ielem][0]].Y;
         double hz = _grid.Nodes[_grid.Elements[ielem][26]].Z - _grid.Nodes[_grid.Elements[ielem][0]].Z;
+
+        for (int i = 0; i < _basis.Size; i++)
+        {
+            for (int j = 0; j < _basis.Size; j++)
+            {
+                Func<Point3D, double> kek;
+
+                    int ik = i;
+                int jk = j;
+                kek = point =>
+                {
+                    double psi1 = _basis.GetPsi(ik, point);
+                    double psi2 = _basis.GetPsi(jk, point);
+
+                    return psi1 * psi2;
+                };
+
+                _massMatrix[i, j] = hx * hy * hz * _grid.Sigma * _integration.Gauss3D(kek);
+
+
+                kek = point =>
+                {
+                    double dPsi1 = _basis.GetDPsi(ik, 0, point);
+                    double dPsi2 = _basis.GetDPsi(ik, 0, point);
+
+                    return dPsi1 * dPsi2;
+                };
+                _stiffnessMatrix[i, j] = hy * hz / hx * _grid.Lambda * _integration.Gauss3D(kek);
+
+                kek = point =>
+                {
+                    double dPsi1 = _basis.GetDPsi(ik, 1, point);
+                    double dPsi2 = _basis.GetDPsi(ik, 1, point);
+
+                    return dPsi1 * dPsi2;
+                };
+                _stiffnessMatrix[i, j] += hx * hz / hy * _grid.Lambda * _integration.Gauss3D(kek);
+                
+                kek = point =>
+                {
+                    double dPsi1 = _basis.GetDPsi(ik, 2, point);
+                    double dPsi2 = _basis.GetDPsi(ik, 2, point);
+
+                    return dPsi1 * dPsi2;
+                };
+                _stiffnessMatrix[i, j] += hy * hx / hz * _grid.Lambda * _integration.Gauss3D(kek);
+            }
+        }
     }
     
     private void BuildPortrait()
