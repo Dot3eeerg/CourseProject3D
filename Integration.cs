@@ -23,7 +23,7 @@ public class Integration
                 {
                     point.Z = (qk.Node + 1) / 2.0;
 
-                    result += psi(point) * qi.Weight * qj.Weight * qk.Node;
+                    result += psi(point) * qi.Weight * qj.Weight * qk.Weight;
                 }
             }
         }

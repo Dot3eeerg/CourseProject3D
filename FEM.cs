@@ -16,6 +16,7 @@ public class FEM
     private Test _test = default!;
     private IBasis3D _basis = default!;
     private Integration _integration = default!;
+    private SLAE _slae = default!;
 
     public FEM(Grid grid, TimeGrid timeGrid)
     {
@@ -32,6 +33,11 @@ public class FEM
     {
         _test = test;
     }
+    
+    public void SetSolver(SLAE slae)
+    {
+        _slae = slae;
+    }
 
     public void Compute()
     {
@@ -42,6 +48,13 @@ public class FEM
         {
             AssemblySLAE(itime);
             AccountDirichletBoundaries(itime);
+            
+            _slae.SetSLAE(_globalVector, _globalMatrix);
+            _solution = _slae.Solve();
+            
+            Vector.Copy(_layers[1], _layers[0]);
+            Vector.Copy(_layers[2], _layers[1]);
+            Vector.Copy(_solution, _layers[2]);
         }
     }
 
@@ -70,6 +83,7 @@ public class FEM
             double t03 = _timeGrid[itime] - _timeGrid[itime - 3];
 
             _stiffnessMatrix += (1 / t03 + 1 / t02 + 1 / t01) * _massMatrix;
+            //_stiffnessMatrix += _massMatrix;
 
             for (int i = 0; i < _basis.Size; i++)
             {

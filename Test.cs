@@ -24,5 +24,5 @@ public class Test1 : Test
         => point.X + point.Y + point.Z + t;
 
     public override double F(Point3D point, double t)
-        => 0;
+        => 1;
 }

@@ -50,5 +50,64 @@ public class SparseMatrix
          }
       }
    }
+   public SparseMatrix ConvertToProfile()
+   {
+      int sizeOffDiag = 0;
+      for (int i = 0; i < Size; i++)
+      {
+         sizeOffDiag += i - Jg[Ig[i]];
+      }
 
+      SparseMatrix result = new(Size, sizeOffDiag);
+
+      result.Ig[0] = 0;
+
+      for (int i = 0; i < Size; i++)
+      {
+         result.Di[i] = Di[i];
+
+         int rowSize = i - Jg[Ig[i]];
+         result.Ig[i + 1] = result.Ig[i] + rowSize;
+
+         int jPrev = Ig[i];
+         for (int j = result.Ig[i]; j < result.Ig[i + 1]; j++)
+         {
+            int col = i - (result.Ig[i + 1] - j);
+            int colPrev = jPrev < Ig[i + 1]? Jg[jPrev] : i;
+            if (col == colPrev)
+            {
+               result.Ggl[j] = Ggl[jPrev];
+               result.Ggu[j] = Ggu[jPrev++];
+            }
+            else
+            {
+               result.Ggl[j] = 0;
+               result.Ggu[j] = 0;
+            }
+            result.Jg[j] = col;
+         }
+      }
+
+      return result;
+   }
+
+   public static void Copy(SparseMatrix source, SparseMatrix product)
+   {
+      for (int i = 0; i < product.Size + 1; i++)
+      {
+         product.Ig[i] = source.Ig[i];
+      }
+
+      for (int i = 0; i < product.Size; i++)
+      {
+         product.Di[i] = source.Di[i];
+      }
+
+      for (int i = 0; i < product.Jg.Length; i++)
+      {
+         product.Jg[i] = source.Jg[i];
+         product.Ggl[i] = source.Ggl[i];
+         product.Ggu[i] = source.Ggu[i];
+      }
+   }
 }

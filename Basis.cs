@@ -158,9 +158,9 @@ public readonly record struct TriQuadraticBasis : IBasis3D
     private double GetDXi(int number, double value)
         => number switch
         {
-            0 => 2 * (value - 1) + 2 * (value - 0.5),
-            1 => -4 * (value - 1) + 2 * value,
-            2 => 2 * (value - 0.5) + 2 * value,
+            0 => 4 * (value - 0.75),
+            1 => 4 - 8 * value,
+            2 => 4 * (value - 0.25),
             _ => throw new ArgumentOutOfRangeException(nameof(number), number, "Not expected DXi member")
         };
 }
