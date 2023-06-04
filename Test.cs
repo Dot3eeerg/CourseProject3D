@@ -14,6 +14,12 @@ public abstract class Test
     public abstract double U(Point3D point, double t);
     
     public abstract double F(Point3D point, double t);
+
+    public abstract double ThetaX(Point3D point, double t);
+    
+    public abstract double ThetaY(Point3D point, double t);
+    
+    public abstract double ThetaZ(Point3D point, double t);
 }
 
 public class Test1 : Test
@@ -21,8 +27,17 @@ public class Test1 : Test
     public Test1(Grid grid) : base(grid) { }
     
     public override double U(Point3D point, double t)
-        => point.X + point.Y + point.Z + t;
+        => point.X * point.X + t;
 
     public override double F(Point3D point, double t)
+        => -1;
+
+    public override double ThetaX(Point3D point, double t)
+        => 1;
+    
+    public override double ThetaY(Point3D point, double t)
+        => 1;
+    
+    public override double ThetaZ(Point3D point, double t)
         => 1;
 }

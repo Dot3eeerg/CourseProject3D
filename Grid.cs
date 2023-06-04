@@ -103,7 +103,6 @@ public class Grid
             for (int j = 0; j < _xSteps * 2 + 1; j++)
             {
                 Nodes[i * nodesInRow + j] = new(Nodes[j].X, y, z);
-                if (_boundaries[2] == 1) DirichletBoundaries.Add(i * nodesInRow + j);
             }
 
             y += yStep / 2;
@@ -111,7 +110,6 @@ public class Grid
             for (int j = 0; j < _xSteps * 2 + 1; j++)
             {
                 Nodes[(i + 1) * nodesInRow + j] = new(Nodes[j].X, y, z);
-                if (_boundaries[2] == 1) DirichletBoundaries.Add((i + 1) * nodesInRow + j);
             }
         }
 
@@ -147,7 +145,7 @@ public class Grid
                     Elements[index][3] = j + nodesInRow * (i + 1) + nodesInSlice * k;
                     Elements[index][4] = j + 1 + nodesInRow * (i + 1) + nodesInSlice * k;
                     Elements[index][5] = j + 2 + nodesInRow * (i + 1) + nodesInSlice * k;
-                    Elements[index][6] = j + nodesInRow * (i + 2) - nodesInSlice * k;
+                    Elements[index][6] = j + nodesInRow * (i + 2) + nodesInSlice * k;
                     Elements[index][7] = j + 1 + nodesInRow * (i + 2) + nodesInSlice * k;
                     Elements[index][8] = j + 2 + nodesInRow * (i + 2) + nodesInSlice * k;
                     

@@ -275,4 +275,9 @@ public class FEM
                     }
         }
     }
+
+    private void AccouintNewmanBoundaries(int itime)
+    {
+        
+    }
 }
