@@ -382,7 +382,7 @@ public class TimeGrid
     private readonly double _tEnd;
     private readonly int _tSteps;
     private readonly double _tRaz;
-    public double[] TGrid { get; }
+    public double[] TGrid { get; set;  }
 
     public TimeGrid(string path)
     {
@@ -396,6 +396,12 @@ public class TimeGrid
             _tRaz = Convert.ToDouble(data[3]);
             TGrid = new double[_tSteps + 1];
         }
+    }
+
+    public double this[int index]
+    {
+        get => TGrid[index];
+        set => TGrid[index] = value;
     }
 
     public void BuildTimeGrid()

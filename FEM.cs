@@ -30,6 +30,41 @@ public class FEM
     public void Compute()
     {
         BuildPortrait();
+        PrepareLayers();
+
+        for (int itime = 3; itime < _timeGrid.TGrid.Length; itime++)
+        {
+            AssemblySLAE(itime);
+        }
+    }
+
+    private void PrepareLayers()
+    {
+        int i = 0;
+        foreach (var kek in _grid.Nodes)
+        {
+            _layers[0][i] = _test.U(kek, _timeGrid[0]);
+            _layers[1][i] = _test.U(kek, _timeGrid[1]);
+            _layers[2][i++] = _test.U(kek, _timeGrid[2]);
+        }
+    }
+
+    private void AssemblySLAE(int itime)
+    {
+        _globalVector.Fill(0);
+        _globalMatrix.Clear();
+
+        for (int ielem = 0; ielem < _grid.Elements.Length; ielem++)
+        {
+            AssemblyLocalElement(ielem);
+        }
+    }
+
+    private void AssemblyLocalElement(int ielem)
+    {
+        double hx = _grid.Nodes[_grid.Elements[ielem][26]].X - _grid.Nodes[_grid.Elements[ielem][0]].X;
+        double hy = _grid.Nodes[_grid.Elements[ielem][26]].Y - _grid.Nodes[_grid.Elements[ielem][0]].Y;
+        double hz = _grid.Nodes[_grid.Elements[ielem][26]].Z - _grid.Nodes[_grid.Elements[ielem][0]].Z;
     }
     
     private void BuildPortrait()
