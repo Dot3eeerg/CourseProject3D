@@ -375,3 +375,45 @@ public class Grid
         }
     }
 }
+
+public class TimeGrid
+{
+    private readonly double _tStart;
+    private readonly double _tEnd;
+    private readonly int _tSteps;
+    private readonly double _tRaz;
+    public double[] TGrid { get; }
+
+    public TimeGrid(string path)
+    {
+        using (var sr = new StreamReader(path))
+        {
+            string[] data;
+            data = sr.ReadLine()!.Split(" ").ToArray();
+            _tStart = Convert.ToDouble(data[0]);
+            _tEnd = Convert.ToDouble(data[1]);
+            _tSteps = Convert.ToInt32(data[2]);
+            _tRaz = Convert.ToDouble(data[3]);
+            TGrid = new double[_tSteps + 1];
+        }
+    }
+
+    public void BuildTimeGrid()
+    {
+        double sumRaz = 0;
+        for (int i = 0; i < _tSteps; i++)
+            sumRaz += Math.Pow(_tRaz, i);
+
+        double t = _tStart;
+        double tStep = (_tEnd - _tStart) / sumRaz;
+
+        for (int i = 0; i < _tSteps; i++)
+        {
+            TGrid[i] = t;
+            t += tStep;
+            tStep *= _tRaz;
+        }
+
+        TGrid[_tSteps] = _tEnd;
+    }
+}
