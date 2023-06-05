@@ -304,21 +304,21 @@ public class FEM
                     case ElementSide.Right:
                         hy = _grid.Nodes[amogus[8].Item1].Y - _grid.Nodes[amogus[0].Item1].Y;
                         hz = _grid.Nodes[amogus[8].Item1].Z - _grid.Nodes[amogus[0].Item1].Z;
-                        _globalVector[node.Item1] -= -hy * hz * _integration.Gauss2D(anime, kek.Item2);
+                        _globalVector[node.Item1] -= -hy * hz * _grid.Lambda * _integration.Gauss2D(anime, kek.Item2);
                         break;
                     
                     case ElementSide.Bottom:
                     case ElementSide.Upper:
                         hx = _grid.Nodes[amogus[8].Item1].X - _grid.Nodes[amogus[0].Item1].X;
                         hy = _grid.Nodes[amogus[8].Item1].Y - _grid.Nodes[amogus[0].Item1].Y;
-                        _globalVector[node.Item1] -= -hx * hy * _integration.Gauss2D(anime, kek.Item2);
+                        _globalVector[node.Item1] -= -hx * hy * _grid.Lambda * _integration.Gauss2D(anime, kek.Item2);
                         break;
                     
                     case ElementSide.Rear:
                     case ElementSide.Front:
                         hx = _grid.Nodes[amogus[8].Item1].X - _grid.Nodes[amogus[0].Item1].X;
                         hz = _grid.Nodes[amogus[8].Item1].Z - _grid.Nodes[amogus[0].Item1].Z;
-                        _globalVector[node.Item1] -= -hx * hz * _integration.Gauss2D(anime, kek.Item2);
+                        _globalVector[node.Item1] -= -hx * hz * _grid.Lambda * _integration.Gauss2D(anime, kek.Item2);
                         break;
                 }
             }
