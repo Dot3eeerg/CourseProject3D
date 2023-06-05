@@ -17,7 +17,7 @@ public class Grid
     private readonly int[] _boundaries;
     public Point3D[] Nodes { get; private set; }
     public HashSet<int> DirichletBoundaries { get; private set; } 
-    public List<(HashSet<int>, ElementSide)> NewmanBoundaries { get; private set; } 
+    public List<(HashSet<(int, int)>, ElementSide)> NewmanBoundaries { get; private set; } 
     public int[][] Elements { get; private set; }
     public double Lambda { get; set; }
     public double Sigma { get; set; }
@@ -183,7 +183,7 @@ public class Grid
                 else if (_boundaries[2] == 2) NewmanBoundary(ElementSide.Bottom, ielem);
             }
 
-            if (ielem > _xSteps * _ySteps * _zSteps - _xSteps * _ySteps || _zSteps == 1)
+            if (ielem >= _xSteps * _ySteps * _zSteps - _xSteps * _ySteps || _zSteps == 1)
             {
                 if (_boundaries[3] == 1) DirichletBoundary(ElementSide.Upper, ielem);
                 else if (_boundaries[3] == 2) NewmanBoundary(ElementSide.Upper, ielem);
@@ -201,13 +201,13 @@ public class Grid
                 else if (_boundaries[1] == 2) NewmanBoundary(ElementSide.Right, ielem);
             }
 
-            if (ielem % _xSteps * _ySteps < _xSteps)
+            if (ielem % (_xSteps * _ySteps) < _xSteps)
             {
                 if (_boundaries[5] == 1) DirichletBoundary(ElementSide.Front, ielem);
                 else if (_boundaries[5] == 2) NewmanBoundary(ElementSide.Front, ielem);
             }
 
-            if (ielem % _xSteps * _ySteps >= _xSteps * _ySteps - _xSteps)
+            if (ielem % (_xSteps * _ySteps) >= _xSteps * _ySteps - _xSteps)
             {
                 if (_boundaries[4] == 1) DirichletBoundary(ElementSide.Rear, ielem);
                 else if (_boundaries[4] == 2) NewmanBoundary(ElementSide.Rear, ielem);
@@ -300,75 +300,75 @@ public class Grid
         switch (elementSide)
         {
             case ElementSide.Bottom:
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][1]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][2]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][3]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][4]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][5]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][6]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][7]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][8]);
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][0], 0));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][1], 1));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][2], 2));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][3], 3));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][4], 4));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][5], 5));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][6], 6));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][7], 7));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][8], 8));
                 break;
             
             case ElementSide.Upper:
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][18]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][19]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][20]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][21]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][22]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][23]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][24]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][25]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][26]);
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][18], 18));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][19], 19));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][20], 20));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][21], 21));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][22], 22));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][23], 23));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][24], 24));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][25], 25));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][26], 26));
                 break;
             
             case ElementSide.Left:
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][3]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][6]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][9]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][12]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][15]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][18]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][21]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][24]);
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][0], 0));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][3], 3));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][6], 6));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][9], 9));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][12], 12));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][15], 15));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][18], 18));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][21], 21));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][24], 24));
                 break;
             
             case ElementSide.Right:
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][2]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][5]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][8]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][11]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][14]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][17]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][20]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][23]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][26]);
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][2], 2));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][5], 5));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][8], 8));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][11], 11));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][14], 14));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][17], 17));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][20], 20));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][23], 23));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][26], 26));
                 break;
             
             case ElementSide.Front:
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][0]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][1]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][2]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][9]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][10]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][11]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][18]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][19]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][20]);
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][0], 0));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][1], 1));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][2], 2));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][9], 9));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][10], 10));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][11], 11));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][18], 18));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][19], 19));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][20], 20));
                 break;
             
             case ElementSide.Rear:
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][6]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][7]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][8]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][15]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][16]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][17]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][24]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][25]);
-                NewmanBoundaries[^1].Item1.Add(Elements[ielem][26]); 
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][6], 6));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][7], 7));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][8], 8));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][15], 15));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][16], 16));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][17], 17));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][24], 24));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][25], 25));
+                NewmanBoundaries[^1].Item1.Add((Elements[ielem][26], 26)); 
                 break;
         }
     }

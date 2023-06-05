@@ -47,6 +47,7 @@ public class FEM
         for (int itime = 3; itime < _timeGrid.TGrid.Length; itime++)
         {
             AssemblySLAE(itime);
+            AccountNewmanBoundaries(itime);
             AccountDirichletBoundaries(itime);
             
             _slae.SetSLAE(_globalVector, _globalMatrix);
@@ -55,6 +56,7 @@ public class FEM
             Vector.Copy(_layers[1], _layers[0]);
             Vector.Copy(_layers[2], _layers[1]);
             Vector.Copy(_solution, _layers[2]);
+            PrintError(itime);
         }
     }
 
@@ -137,7 +139,7 @@ public class FEM
     {
         if (i == j)
         {
-            _globalMatrix.Di[i] = value;
+            _globalMatrix.Di[i] += value;
             return;
         }
 
@@ -276,8 +278,60 @@ public class FEM
         }
     }
 
-    private void AccouintNewmanBoundaries(int itime)
+    private void AccountNewmanBoundaries(int itime)
     {
+        foreach (var kek in _grid.NewmanBoundaries)
+        {
+            (int, int)[] amogus = new (int, int)[9]; 
+            kek.Item1.CopyTo(amogus);
+            double hx, hy, hz;
+            foreach (var node in kek.Item1)
+            {
+                
+                Func<Point3D, double> anime;
+
+                int ik = node.Item2;
+                anime = point =>
+                {
+                    double psi1 = _basis.GetPsi(ik, point);
+
+                    return psi1 * _test.Theta(point, _timeGrid[itime], kek.Item2);
+                };
+
+                switch (kek.Item2)
+                {
+                    case ElementSide.Left:
+                    case ElementSide.Right:
+                        hy = _grid.Nodes[amogus[8].Item1].Y - _grid.Nodes[amogus[0].Item1].Y;
+                        hz = _grid.Nodes[amogus[8].Item1].Z - _grid.Nodes[amogus[0].Item1].Z;
+                        _globalVector[node.Item1] -= -hy * hz * _integration.Gauss2D(anime, kek.Item2);
+                        break;
+                    
+                    case ElementSide.Bottom:
+                    case ElementSide.Upper:
+                        hx = _grid.Nodes[amogus[8].Item1].X - _grid.Nodes[amogus[0].Item1].X;
+                        hy = _grid.Nodes[amogus[8].Item1].Y - _grid.Nodes[amogus[0].Item1].Y;
+                        _globalVector[node.Item1] -= -hx * hy * _integration.Gauss2D(anime, kek.Item2);
+                        break;
+                    
+                    case ElementSide.Rear:
+                    case ElementSide.Front:
+                        hx = _grid.Nodes[amogus[8].Item1].X - _grid.Nodes[amogus[0].Item1].X;
+                        hz = _grid.Nodes[amogus[8].Item1].Z - _grid.Nodes[amogus[0].Item1].Z;
+                        _globalVector[node.Item1] -= -hx * hz * _integration.Gauss2D(anime, kek.Item2);
+                        break;
+                }
+            }
+        }
+    }
+
+    private void PrintError(int itime)
+    {
+        double error = 0;
+        for (int i = 0; i < _grid.Nodes.Length; i++)
+            error += Math.Pow(_test.U(_grid.Nodes[i], _timeGrid[itime]) - _solution[i], 2);
+        Console.WriteLine($"Layer error {itime} = {Math.Sqrt(error / _grid.Nodes.Length)}");
+
         
     }
 }

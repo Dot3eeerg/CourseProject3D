@@ -15,11 +15,7 @@ public abstract class Test
     
     public abstract double F(Point3D point, double t);
 
-    public abstract double ThetaX(Point3D point, double t);
-    
-    public abstract double ThetaY(Point3D point, double t);
-    
-    public abstract double ThetaZ(Point3D point, double t);
+    public abstract double Theta(Point3D point, double t, ElementSide elementSide);
 }
 
 public class Test1 : Test
@@ -27,17 +23,29 @@ public class Test1 : Test
     public Test1(Grid grid) : base(grid) { }
     
     public override double U(Point3D point, double t)
-        => point.X * point.X + t;
+        => point.Y + 2 * point.Z + t;
 
     public override double F(Point3D point, double t)
-        => -1;
+        => 1;
 
-    public override double ThetaX(Point3D point, double t)
-        => 1;
-    
-    public override double ThetaY(Point3D point, double t)
-        => 1;
-    
-    public override double ThetaZ(Point3D point, double t)
-        => 1;
+    public override double Theta(Point3D point, double t, ElementSide elementSide)
+    {
+        switch (elementSide)
+        {
+            case ElementSide.Left:
+            case ElementSide.Right:
+                return 0;
+            
+            case ElementSide.Bottom:
+            case ElementSide.Upper:
+                return 2;
+            
+            case ElementSide.Rear:
+            case ElementSide.Front:
+                return 1;
+            
+            default:
+                throw new Exception("Can't find function type");
+        }
+    }
 }
